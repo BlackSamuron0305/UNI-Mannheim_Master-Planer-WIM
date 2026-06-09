@@ -1,0 +1,164 @@
+
+<h2 class="sr-only">IS-Module Auswahl</h2>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+.top{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:1rem;padding-top:1rem;align-items:center}
+.filter-btn{font-size:13px;padding:5px 12px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-secondary);cursor:pointer}
+.filter-btn.active{background:var(--color-background-secondary);color:var(--color-text-primary);border-color:var(--color-border-primary);font-weight:500}
+.ects-bar{display:flex;align-items:center;gap:12px;padding:10px 14px;background:var(--color-background-secondary);border-radius:var(--border-radius-md);margin-bottom:1rem;font-size:14px}
+.ects-count{font-size:22px;font-weight:500}
+.ects-label{color:var(--color-text-secondary)}
+.table-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{text-align:left;padding:7px 10px;border-bottom:0.5px solid var(--color-border-secondary);color:var(--color-text-secondary);font-weight:500;white-space:nowrap;cursor:pointer;user-select:none}
+th:hover{color:var(--color-text-primary)}
+td{padding:7px 10px;border-bottom:0.5px solid var(--color-border-tertiary);vertical-align:top;color:var(--color-text-primary)}
+tr:hover td{background:var(--color-background-secondary)}
+tr.selected td{background:#E1F5EE}
+tr.unavail td{opacity:.45}
+.code{font-family:var(--font-mono);font-size:12px;white-space:nowrap}
+.badge{display:inline-block;font-size:11px;padding:2px 7px;border-radius:4px;white-space:nowrap}
+.b-nok{background:#E1F5EE;color:#0F6E56}
+.b-short{background:#EAF3DE;color:#3B6D11}
+.b-exam{background:#F1EFE8;color:#5F5E5A}
+.b-restr{background:#FCEBEB;color:#A32D2D}
+.b-free{background:#E6F1FB;color:#185FA5}
+.b-hws{background:#EEEDFE;color:#3C3489}
+.b-fss{background:#FAEEDA;color:#854F0B}
+.b-both{background:#E1F5EE;color:#085041}
+.b-na{background:#F1EFE8;color:#888780;text-decoration:line-through}
+.chk{width:16px;height:16px;cursor:pointer;accent-color:#1D9E75}
+.hint{font-size:12px;color:var(--color-text-tertiary);margin-top:8px}
+select{font-size:13px;padding:5px 8px;border-radius:var(--border-radius-md);border:0.5px solid var(--color-border-secondary);background:var(--color-background-primary);color:var(--color-text-primary)}
+</style>
+
+<div class="top">
+  <span style="font-size:13px;color:var(--color-text-secondary)">Filter:</span>
+  <button class="filter-btn active" onclick="setFilter('all')">Alle</button>
+  <button class="filter-btn" onclick="setFilter('norestr')">Nicht beschränkt</button>
+  <button class="filter-btn" onclick="setFilter('noclausur')">Keine Klausur</button>
+  <button class="filter-btn" onclick="setFilter('simple')">Klausur ≤60 min</button>
+  <select onchange="setSemFilter(this.value)" style="margin-left:4px">
+    <option value="all">Alle Semester</option>
+    <option value="HWS">Nur HWS</option>
+    <option value="FSS">Nur FSS</option>
+  </select>
+</div>
+
+<div class="ects-bar">
+  <span class="ects-count" id="ects-total">0</span>
+  <span class="ects-label">/ 18 ECTS ausgewählt</span>
+  <span id="ects-status" style="margin-left:auto;font-weight:500"></span>
+</div>
+
+<div class="table-wrap">
+<table>
+<thead><tr>
+  <th></th>
+  <th onclick="sortBy('code')">Code ↕</th>
+  <th>Modul</th>
+  <th style="text-align:center">ECTS</th>
+  <th>Prüfungsform</th>
+  <th>Beschränkt</th>
+  <th onclick="sortBy('sem')">Semester ↕</th>
+</tr></thead>
+<tbody id="tbody"></tbody>
+</table>
+</div>
+<p class="hint">Zeilen anklicken zum Auswählen · IS 616 nicht verfügbar (not offered FSS 26)</p>
+
+<script>
+const modules = [
+  ["IS 512","IT Management in the Digital Age",6,"Klausur 60 min","JA","FSS",true],
+  ["IS 513","Applied IT Management in the Digital Age",6,"Case Study: Written assignment Slide Deck (80%) + Präsentation (20%)","JA","FSS",true],
+  ["IS 515","Process Management & Analytics",6,"Klausur 60 min (80%) + Gruppenarbeit (20%)","JA","HWS",true],
+  ["IS 540","Management of Enterprise Systems",6,"Case Study (20%) + Klausur 60 min (80%)","JA","HWS",true],
+  ["IS 541","Methods and Theories in IS (ManTIS)",6,"Präsentation (30%) + Seminararbeit (70%)","JA","FSS",true],
+  ["IS 556","Public Blockchains",6,"Klausur 60 min","JA","FSS",true],
+  ["IS 607","Digital Innovation",6,"Klausur 60 min","JA","FSS",true],
+  ["IS 613","Applied Project in Enterprise Cloud Design",6,"Software Development Term Project","JA","HWS",true],
+  ["IS 614","Corporate Knowledge Management",6,"Klausur 60 min","JA","FSS",true],
+  ["IS 615","Enterprise Cloud Design and Development",6,"Klausur 60 min","JA","FSS",true],
+  ["IS 616","Large Scale Data Analysis and Visualization",6,"–","–","FSS",false],
+  ["IS 622","Network Science",6,"Klausur 80 min","JA","FSS",true],
+  ["IS 628","Advances in Public Blockchains",6,"Written Report (max. 12 S.) + Oral Presentation","JA","HWS",true],
+  ["IS 629","Agile Software Product Management and Design",6,"Klausur 60 min (60%) + Case Study (40%)","NEIN","FSS",true],
+  ["IS 661","Text Analytics",6,"Klausur 90 min","JA","HWS",true],
+];
+
+let selected = new Set();
+let currentFilter = 'all';
+let currentSemFilter = 'all';
+let sortCol = null, sortAsc = true;
+
+function hasNoKlausur(exam){
+  const e=exam.toLowerCase();
+  return !(e.includes('klausur')||e.includes('written exam')||e.includes('final exam'));
+}
+function isShortExam(exam){
+  const m=exam.match(/(\d+)\s*min/);
+  if(!m)return true;
+  return parseInt(m[1])<=60;
+}
+function passFilter(mod){
+  const [code,name,ects,exam,restr,sem,avail]=mod;
+  if(currentSemFilter!=='all'&&sem!==currentSemFilter)return false;
+  if(currentFilter==='norestr')return restr==='NEIN';
+  if(currentFilter==='noclausur')return hasNoKlausur(exam);
+  if(currentFilter==='simple')return isShortExam(exam);
+  return true;
+}
+
+function semBadge(sem){
+  if(sem==='HWS')return '<span class="badge b-hws">HWS</span>';
+  if(sem==='FSS')return '<span class="badge b-fss">FSS</span>';
+  return '<span class="badge b-exam">?</span>';
+}
+
+function render(){
+  const tbody=document.getElementById('tbody');
+  let rows=modules.filter(passFilter);
+  if(sortCol==='code')rows.sort((a,b)=>sortAsc?a[0].localeCompare(b[0]):b[0].localeCompare(a[0]));
+  if(sortCol==='sem')rows.sort((a,b)=>sortAsc?a[5].localeCompare(b[5]):b[5].localeCompare(a[5]));
+  tbody.innerHTML='';
+  rows.forEach(mod=>{
+    const [code,name,ects,exam,restr,sem,avail]=mod;
+    const isSel=selected.has(code);
+    const noK=hasNoKlausur(exam);
+    const shortE=isShortExam(exam);
+    let examBadge=!avail?'':noK?'<span class="badge b-nok">Keine Klausur</span> ':shortE?'<span class="badge b-short">≤60 min</span> ':'<span class="badge b-exam">Klausur</span> ';
+    const rBadge=restr==='JA'?'<span class="badge b-restr">Ja</span>':restr==='NEIN'?'<span class="badge b-free">Nein</span>':'<span class="badge b-exam">–</span>';
+    const sBadge=avail?semBadge(sem):'<span class="badge b-na">FSS 26 entfällt</span>';
+    const tr=document.createElement('tr');
+    if(isSel)tr.classList.add('selected');
+    if(!avail)tr.classList.add('unavail');
+    tr.innerHTML=`<td><input type="checkbox" class="chk" ${isSel?'checked':''} ${!avail?'disabled':''} onchange="toggle('${code}',${ects},this)"></td><td><span class="code">${code}</span></td><td style="max-width:220px">${name}</td><td style="text-align:center;font-weight:500">${ects}</td><td style="max-width:240px;color:var(--color-text-secondary);font-size:12px">${examBadge}${avail?exam:'nicht im Angebot FSS 26'}</td><td>${rBadge}</td><td>${sBadge}</td>`;
+    if(avail)tr.onclick=e=>{if(e.target.type==='checkbox')return;const cb=tr.querySelector('.chk');cb.checked=!cb.checked;toggle(code,ects,cb);};
+    tbody.appendChild(tr);
+  });
+  updateECTS();
+}
+
+function toggle(code,ects,cb){
+  if(cb.checked)selected.add(code);else selected.delete(code);
+  updateECTS();render();
+}
+function updateECTS(){
+  let total=0;
+  modules.forEach(([code,,ects])=>{if(selected.has(code))total+=ects;});
+  document.getElementById('ects-total').textContent=total;
+  const st=document.getElementById('ects-status');
+  if(total===18){st.textContent='✓ Genau 18 ECTS';st.style.color='#1D9E75';}
+  else if(total>18){st.textContent='⚠ Zu viele ECTS';st.style.color='#BA7517';}
+  else if(total>0){st.textContent=`${18-total} ECTS fehlen`;st.style.color='var(--color-text-secondary)';}
+  else{st.textContent='';}
+}
+function setFilter(f){
+  currentFilter=f;
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.getAttribute('onclick').includes("'"+f+"'")));
+  render();
+}
+function setSemFilter(v){currentSemFilter=v;render();}
+function sortBy(col){if(sortCol===col)sortAsc=!sortAsc;else{sortCol=col;sortAsc=true;}render();}
+render();
+</script>
