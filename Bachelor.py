@@ -1,6 +1,6 @@
 wifo4_grade = 2.3  # Note für "Wirtschaftsinformatik 4"
-externes_Rechnungswesen = 1.3  # Note für "Externes Rechnungswesen"
-statistik = 2.7  # Note für "Statistik"
+externes_Rechnungswesen = 1.0  # Note für "Externes Rechnungswesen"
+statistik = 1.0  # Note für "Statistik"
 
 def truncate_one_decimal(value):
 	# Keep one decimal place without rounding.
