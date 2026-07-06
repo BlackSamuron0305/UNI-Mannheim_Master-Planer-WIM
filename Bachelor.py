@@ -1,10 +1,10 @@
-wifo4_grade = 2.3  # Note für "Wirtschaftsinformatik 4"
+wifo4_grade = 1.0  # Note für "Wirtschaftsinformatik 4"
 externes_Rechnungswesen = 1.0  # Note für "Externes Rechnungswesen"
-statistik = 1.0  # Note für "Statistik"
+statistik = 1.3  # Note für "Statistik"
 
 def truncate_one_decimal(value):
-	# Keep one decimal place without rounding.
-	return int(value * 10) / 10
+    # Keep one decimal place without rounding.
+    return int(value * 10) / 10
 
 
 # Grundlagen Wirtschaftsinformatik (24 ECTS)
@@ -43,8 +43,8 @@ grundlagen_bwl = truncate_one_decimal(grundlagen_bwl_weighted)
 
 # Grundlagen Mathematik und Statistik (17 ECTS)
 grundlagen_mathe_stat_weighted = (
-	3.7 * 9
-	+ 3.0 * 8
+	3.7 * 8
+	+ 3.0 * 9
     + statistik * 8
 ) / 25
 grundlagen_mathe_stat = truncate_one_decimal(grundlagen_mathe_stat_weighted)
@@ -75,6 +75,7 @@ seminar = truncate_one_decimal(seminar_weighted)
 
 # Aktueller Gesamtschnitt inkl. Bachelorarbeit
 bachelorarbeit_weighted = 1.0
+bachelorarbeit = truncate_one_decimal(bachelorarbeit_weighted)
 
 total_ects = 24 + 57 + 30 + 25 + 12 + 8 + 9 + 5 + 12
 total_weighted = (
@@ -98,5 +99,5 @@ print("Vertiefung:", vertiefung)
 print("Wahlfach:", wahlfach)
 print("Schluesselqualifikationen:", sq)
 print("Seminar:", seminar)
-print("Bachelorarbeit:", bachelorarbeit_weighted)
+print("Bachelorarbeit:", bachelorarbeit)
 print("Gesamtschnitt (mit Bachelorarbeit):", gesamt_mit_ba)
