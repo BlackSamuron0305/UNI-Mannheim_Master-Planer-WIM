@@ -26,6 +26,9 @@ dist-ssr
 # Superpowers SDD scratch workspace
 .superpowers/
 
+# Playwright MCP scratch output
+.playwright-mcp/
+
 # Secrets — never commit
 .env
 .env.*
