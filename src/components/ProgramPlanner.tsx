@@ -29,7 +29,7 @@ export function ProgramPlanner({ program }: { program: Program }) {
   }, [program, catalogs]);
 
   const [plan, setPlan] = useState<Plan>(() => loadPlan(program.id));
-  const [semesterCount, setSemesterCount] = useState(4);
+  const [semesterCount, setSemesterCount] = useState(program.semesters);
 
   useEffect(() => savePlan(program.id, plan), [program.id, plan]);
 

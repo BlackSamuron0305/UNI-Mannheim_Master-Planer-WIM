@@ -10,7 +10,7 @@ export default function App() {
 
   return (
     <div className="app-shell">
-      {program ? <ProgramPlanner program={program} /> : <ProgramPicker programs={PROGRAMS} />}
+      {program ? <ProgramPlanner key={program.id} program={program} /> : <ProgramPicker programs={PROGRAMS} />}
     </div>
   );
 }
