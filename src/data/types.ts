@@ -17,7 +17,7 @@ export interface Module {
   sourceCatalog: string;
 }
 
-export type ModulePool = { codes: string[] } | { sourceCatalog: string };
+export type ModulePool = { codes: string[] } | { sourceCatalog: string; excludeCodes?: string[] };
 
 export interface TagRequirement {
   tag: string;

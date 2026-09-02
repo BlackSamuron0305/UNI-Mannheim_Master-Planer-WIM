@@ -51,4 +51,12 @@ describe("resolvePool", () => {
     expect(result).toEqual(sourceArray);
     expect(result).not.toBe(sourceArray);
   });
+
+  it("omits exactly the excluded codes from a source catalog, keeping everything else", () => {
+    const catalogsWithThree = {
+      wifo: [mod("CS 500", "wifo"), mod("CS 530", "wifo"), mod("CS 550", "wifo")],
+    };
+    const result = resolvePool({ sourceCatalog: "wifo", excludeCodes: ["CS 530"] }, catalogsWithThree);
+    expect(result.map((m) => m.code)).toEqual(["CS 500", "CS 550"]);
+  });
 });

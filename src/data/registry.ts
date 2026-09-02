@@ -25,5 +25,6 @@ export function resolvePool(pool: ModulePool, catalogs: Record<string, Module[]>
   }
   const source = catalogs[pool.sourceCatalog];
   if (!source) throw new Error(`Unknown source catalog "${pool.sourceCatalog}"`);
-  return [...source];
+  const excluded = new Set(pool.excludeCodes ?? []);
+  return source.filter((m) => !excluded.has(m.code));
 }
