@@ -1,9 +1,9 @@
 import "@testing-library/jest-dom";
 
 // Polyfill localStorage for tests if it doesn't exist
-if (typeof global.localStorage === "undefined") {
+if (typeof globalThis.localStorage === "undefined") {
   const store: Record<string, string> = {};
-  global.localStorage = {
+  globalThis.localStorage = {
     getItem: (key: string) => store[key] ?? null,
     setItem: (key: string, value: string) => {
       store[key] = value;
