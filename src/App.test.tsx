@@ -1,10 +1,11 @@
-import { render } from "@testing-library/react";
+import { render, screen } from "@testing-library/react";
 import { describe, expect, it } from "vitest";
 import App from "./App";
 
 describe("App", () => {
-  it("renders the app shell", () => {
-    const { container } = render(<App />);
-    expect(container.querySelector(".app-shell")).toBeInTheDocument();
+  it("renders the program picker at the root route", () => {
+    window.location.hash = "";
+    render(<App />);
+    expect(screen.getByText("WIM Master Planner")).toBeInTheDocument();
   });
 });
