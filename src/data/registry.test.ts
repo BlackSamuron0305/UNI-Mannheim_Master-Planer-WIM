@@ -38,4 +38,17 @@ describe("resolvePool", () => {
   it("throws for an unknown source catalog", () => {
     expect(() => resolvePool({ sourceCatalog: "nope" }, catalogs)).toThrow(/Unknown source catalog "nope"/);
   });
+
+  it("throws on duplicate codes when resolving code list", () => {
+    const catalogsWithDuplicates = { a: [mod("X", "a")], b: [mod("X", "b")] };
+    expect(() => resolvePool({ codes: ["X"] }, catalogsWithDuplicates)).toThrow(/Duplicate module code "X"/);
+  });
+
+  it("returns a copy of the source catalog, not the shared reference", () => {
+    const sourceArray = [mod("CS 500", "wifo"), mod("CS 530", "wifo")];
+    const catalogsWithArray = { wifo: sourceArray };
+    const result = resolvePool({ sourceCatalog: "wifo" }, catalogsWithArray);
+    expect(result).toEqual(sourceArray);
+    expect(result).not.toBe(sourceArray);
+  });
 });

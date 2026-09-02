@@ -16,15 +16,14 @@ export function buildRegistry(catalogs: Record<string, Module[]>): Map<string, M
 
 export function resolvePool(pool: ModulePool, catalogs: Record<string, Module[]>): Module[] {
   if ("codes" in pool) {
-    const flat = Object.values(catalogs).flat();
-    const byCode = new Map(flat.map((m) => [m.code, m]));
+    const registry = buildRegistry(catalogs);
     return pool.codes.map((code) => {
-      const mod = byCode.get(code);
+      const mod = registry.get(code);
       if (!mod) throw new Error(`Unknown module code "${code}" in pool`);
       return mod;
     });
   }
   const source = catalogs[pool.sourceCatalog];
   if (!source) throw new Error(`Unknown source catalog "${pool.sourceCatalog}"`);
-  return source;
+  return [...source];
 }
