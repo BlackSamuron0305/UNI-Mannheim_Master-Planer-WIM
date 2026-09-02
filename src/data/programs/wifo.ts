@@ -66,5 +66,10 @@ export const WIFO_PROGRAM: Program = {
         ],
       },
     },
+    {
+      id: "thesis", name: "Master's Thesis",
+      pool: { codes: codesByTag("thesis") },
+      rule: { exactEcts: 30 },
+    },
   ],
 };

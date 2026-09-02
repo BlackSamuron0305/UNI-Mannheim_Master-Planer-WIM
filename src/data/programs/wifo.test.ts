@@ -4,6 +4,7 @@ import { WIFO_MODULES } from "../catalog/wifo";
 import { BUSINESS_SCHOOL_MODULES } from "../catalog/businessSchool";
 import { buildRegistry, resolvePool } from "../registry";
 import { evaluateGroup } from "../../lib/planEngine";
+import type { Group } from "../types";
 
 const catalogs = { wifo: WIFO_MODULES, businessSchool: BUSINESS_SCHOOL_MODULES };
 
@@ -68,5 +69,38 @@ describe("WIFO_PROGRAM", () => {
     const evaluation = evaluateGroup(group, pool, plan);
     expect(evaluation.selectedEcts).toBe(18);
     expect(evaluation.status).toBe("on-track");
+  });
+
+  it("resolves the Master's Thesis group to exactly 1 module worth 30 ECTS", () => {
+    const group = WIFO_PROGRAM.groups.find((g) => g.id === "thesis")!;
+    expect(group).toBeDefined();
+    const pool = resolvePool(group.pool, catalogs);
+    expect(pool).toHaveLength(1);
+    expect(pool[0].code).toBe("MA 650");
+    expect(pool[0].ects).toBe(30);
+
+    const plan = { "MA 650": 1 };
+    expect(evaluateGroup(group, pool, plan).status).toBe("satisfied");
+  });
+
+  it("sums the 5 groups' ECTS targets to the program's total ECTS (120)", () => {
+    // Every group's target is its exactEcts/minEcts rule value, except
+    // Fundamentals CS, which is a fixed-count pick (minCount 3 of a
+    // pool that's uniformly 6 ECTS per module) rather than an ECTS rule.
+    const targetEctsOf = (group: Group): number => {
+      const { exactEcts, minEcts, minCount } = group.rule;
+      if (exactEcts !== undefined) return exactEcts;
+      if (minEcts !== undefined) return minEcts;
+      if (minCount !== undefined) {
+        const pool = resolvePool(group.pool, catalogs);
+        expect(pool.every((m) => m.ects === pool[0].ects)).toBe(true);
+        return minCount * pool[0].ects;
+      }
+      throw new Error(`Group "${group.id}" has no ECTS target defined`);
+    };
+
+    const total = WIFO_PROGRAM.groups.reduce((sum, g) => sum + targetEctsOf(g), 0);
+    expect(total).toBe(WIFO_PROGRAM.totalEctsRange[0]);
+    expect(total).toBe(120);
   });
 });

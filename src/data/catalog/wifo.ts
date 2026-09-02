@@ -24,6 +24,8 @@ import type { Module } from "../types";
  *    (IS 703, IS 712, IS 742, IS 751) carry the Wifo-specific 4-ECTS value from
  *    this PDF's own overview table, not the (higher, MMM-student) ECTS value
  *    quoted on the shared IS 703/IS 742 description pages in the MMM catalog.
+ *  - Master's Thesis (tag "thesis"): a single fixed module, MA 650, 30 ECTS
+ *    (p.115), gated on 60 ECTS already earned (`WIFO_PROGRAM.thesisGateEcts`).
  *
  * Excluded by design:
  *  - `BI 656` "International Course": no fixed ECTS value ("depends on course
@@ -487,5 +489,17 @@ export const WIFO_MODULES: Module[] = [
     examForm: "Unknown - listed in this catalog's overview table with a pointer to the MMM module catalogue, but no module with this code exists there in the current edition",
     examType: "unknown", semester: "UNKNOWN", language: "EN", available: true,
     tags: ["projects-seminars", "seminar"], sourceCatalog: "wifo",
+  },
+
+  // ---------------------------------------------------------------------
+  // E. Master Thesis (p.115: "Prerequisites: the student is required to
+  // have obtained at least 60 ECTS credits in order to register", matching
+  // WIFO_PROGRAM.thesisGateEcts)
+  // ---------------------------------------------------------------------
+  {
+    code: "MA 650", name: "Master's Thesis", ects: 30,
+    examForm: "Written thesis, 10-120 pages in length depending on the topic",
+    examType: "no", semester: "BOTH", language: "DE/EN", available: true,
+    tags: ["thesis"], sourceCatalog: "wifo",
   },
 ];
