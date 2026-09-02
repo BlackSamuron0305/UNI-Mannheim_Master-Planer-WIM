@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
-import type { Program, Plan } from "../data/types";
+import type { Module, Program, Plan } from "../data/types";
 import { WIFO_MODULES } from "../data/catalog/wifo";
 import { BUSINESS_SCHOOL_MODULES } from "../data/catalog/businessSchool";
 import { resolvePool } from "../data/registry";
@@ -15,7 +15,18 @@ const CATALOGS_BY_PROGRAM: Record<string, Record<string, typeof WIFO_MODULES>> =
 
 export function ProgramPlanner({ program }: { program: Program }) {
   const catalogs = CATALOGS_BY_PROGRAM[program.id];
-  const allModules = useMemo(() => Object.values(catalogs).flat(), [catalogs]);
+
+  // Selectable pool derived from the program's own groups, not the raw
+  // catalog union — a module excluded from every group's pool (e.g. via
+  // a group's `excludeCodes`) must not be selectable just because it's
+  // still present in one of the underlying catalogs.
+  const poolModules = useMemo(() => {
+    const byCode = new Map<string, Module>();
+    for (const g of program.groups) {
+      for (const m of resolvePool(g.pool, catalogs)) byCode.set(m.code, m);
+    }
+    return [...byCode.values()];
+  }, [program, catalogs]);
 
   const [plan, setPlan] = useState<Plan>(() => loadPlan(program.id));
   const [semesterCount, setSemesterCount] = useState(4);
@@ -35,7 +46,7 @@ export function ProgramPlanner({ program }: { program: Program }) {
     setPlan((prev) => (code in prev ? { ...prev, [code]: semester } : prev));
   };
 
-  const plannedEcts = allModules
+  const plannedEcts = poolModules
     .filter((m) => plan[m.code] !== undefined)
     .reduce((sum, m) => sum + m.ects, 0);
 
@@ -49,8 +60,8 @@ export function ProgramPlanner({ program }: { program: Program }) {
         ))}
       </div>
       <div className="planner-layout">
-        <ModuleTable modules={allModules} plan={plan} onToggle={toggle} />
-        <SemesterBoard modules={allModules} plan={plan} semesterCount={semesterCount} onAssign={assign} />
+        <ModuleTable modules={poolModules} plan={plan} onToggle={toggle} />
+        <SemesterBoard modules={poolModules} plan={plan} semesterCount={semesterCount} onAssign={assign} />
       </div>
     </div>
   );

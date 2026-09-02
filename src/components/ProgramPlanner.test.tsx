@@ -15,4 +15,11 @@ describe("ProgramPlanner", () => {
     render(<ProgramPlanner program={WIFO_PROGRAM} />);
     expect(screen.getAllByRole("checkbox")[0]).toBeChecked();
   });
+
+  it("does not render a Business School module excluded from Wifo's Fundamentals BA group (MAN 605)", () => {
+    // MAN 605 exists in BUSINESS_SCHOOL_MODULES but is in WIFO_PROGRAM's
+    // fundamentals-ba `excludeCodes` list, so it must not be selectable.
+    render(<ProgramPlanner program={WIFO_PROGRAM} />);
+    expect(screen.queryByText("MAN 605")).not.toBeInTheDocument();
+  });
 });
