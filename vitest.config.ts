@@ -6,6 +6,8 @@ export default defineConfig({
   test: {
     environment: "jsdom",
     globals: true,
+    // Node 22+ ships an experimental localStorage that warns once per worker; jsdom provides ours.
+    execArgv: ["--no-experimental-webstorage"],
     setupFiles: "./src/test-setup.ts",
   },
 });

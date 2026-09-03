@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { buildRegistry, resolvePool } from "./registry";
-import type { Module } from "./types";
+import { buildRegistry, resolveGroupPools, resolvePool } from "./registry";
+import type { Module, Program } from "./types";
 
 function mod(code: string, sourceCatalog: string): Module {
   return { code, name: code, ects: 6, examForm: "", examType: "unknown", semester: "UNKNOWN", available: true, sourceCatalog };
@@ -58,5 +58,34 @@ describe("resolvePool", () => {
     };
     const result = resolvePool({ sourceCatalog: "wifo", excludeCodes: ["CS 530"] }, catalogsWithThree);
     expect(result.map((m) => m.code)).toEqual(["CS 500", "CS 550"]);
+  });
+});
+
+describe("buildRegistry catalog-key guard", () => {
+  it("throws when a module's sourceCatalog does not match the key it is filed under", () => {
+    expect(() => buildRegistry({ wifo: [mod("CS 500", "businessSchool")] })).toThrow(
+      /sourceCatalog "businessSchool".*filed under "wifo"/,
+    );
+  });
+});
+
+describe("resolveGroupPools", () => {
+  const catalogs = {
+    wifo: [mod("CS 500", "wifo"), mod("CS 530", "wifo")],
+    bs: [mod("ACC 510", "bs")],
+  };
+  const program: Program = {
+    id: "p", name: "P", shortName: "P", totalEctsRange: [120, 120], semesters: 4, thesisEcts: 30, thesisGateEcts: 60,
+    groups: [
+      { id: "a", name: "A", pool: { codes: ["CS 530"] }, rule: {} },
+      { id: "b", name: "B", pool: { sourceCatalog: "bs" }, rule: {} },
+    ],
+  };
+
+  it("resolves every group's pool, keyed by group id", () => {
+    const pools = resolveGroupPools(program, catalogs);
+    expect([...pools.keys()]).toEqual(["a", "b"]);
+    expect(pools.get("a")!.map((m) => m.code)).toEqual(["CS 530"]);
+    expect(pools.get("b")!.map((m) => m.code)).toEqual(["ACC 510"]);
   });
 });

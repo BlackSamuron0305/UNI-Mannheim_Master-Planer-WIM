@@ -1,4 +1,4 @@
-import type { Program } from "../data/types";
+import { MAX_SEMESTERS, type Program } from "../data/types";
 
 export function StatsBar({
   program, plannedEcts, semesterCount, onSemesterCountChange,
@@ -11,11 +11,13 @@ export function StatsBar({
       <label>
         Semesters:
         <input
-          type="number" min={1} max={12} value={semesterCount}
-          onChange={(e) => onSemesterCountChange(Math.max(1, Math.min(12, Number(e.target.value) || 1)))}
+          type="number" min={1} max={MAX_SEMESTERS} value={semesterCount}
+          onChange={(e) => onSemesterCountChange(Math.max(1, Math.min(MAX_SEMESTERS, Number(e.target.value) || 1)))}
         />
       </label>
-      <div className="thesis-note">Thesis ({program.thesisEcts} ECTS) unlocks at {program.thesisGateEcts} ECTS planned.</div>
+      <div className="thesis-note">
+        Thesis ({program.thesisEcts} ECTS) can only be registered once {program.thesisGateEcts} ECTS have been earned.
+      </div>
     </div>
   );
 }
