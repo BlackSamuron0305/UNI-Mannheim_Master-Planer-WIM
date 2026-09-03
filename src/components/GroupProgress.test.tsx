@@ -16,3 +16,12 @@ describe("GroupProgress", () => {
     expect(screen.getByText(/satisfied/i)).toBeInTheDocument();
   });
 });
+
+describe("GroupProgress count-based target", () => {
+  it("derives the ECTS target for a count-based rule over a uniform pool", () => {
+    const countGroup: Group = { id: "cs", name: "Fundamentals CS", pool: { codes: ["A", "B", "C"] }, rule: { minCount: 3, maxCount: 3 } };
+    const three: Module[] = [...modules, { ...modules[0], code: "C", name: "C" }];
+    render(<GroupProgress group={countGroup} poolModules={three} plan={{ A: 1 }} />);
+    expect(screen.getByText(/6 \/ 18 ECTS/)).toBeInTheDocument();
+  });
+});
