@@ -5,7 +5,7 @@ import type { Module } from "../types";
  * elective module from the University of Mannheim Mannheim Master in Management
  * module catalog (academic year 2026/2027 edition).
  *
- * Excluded by design (see task-4-report.md for rationale):
+ * Excluded by design:
  *  - "International Course" placeholder modules (x 550 codes): no fixed ECTS value,
  *    only bookable while abroad on exchange.
  *  - "(Research) Seminar" modules (7xx codes): thesis-preparation seminars with
